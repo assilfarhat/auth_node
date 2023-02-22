@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cors from 'cors';
 import userRoutes from "./routes/user.js";
+import session from 'express-session';
 
 const port =  9090;
 const app = express();
@@ -16,6 +17,12 @@ mongoose
   .catch(err => {
     console.log(err);
   });
+  // Set up session middleware
+app.use(session({
+  secret: 'my-secret-key',
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
