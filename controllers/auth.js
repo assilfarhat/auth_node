@@ -46,15 +46,13 @@ exports.signin = (req, res) => {
         longitude,
         latitude
       }
-    })
-    exports.signout =(req,res) => {
-      res.clearCookie('token')
-      return res.json({
-        message: 'Signout successful'   
-      })
-    }
-
+    })  
     
-    
+  })
+}
+exports.signout =(req,res) => {
+  res.clearCookie('token')
+  return res.json({
+    message: 'Signout successful'   
   })
 }
