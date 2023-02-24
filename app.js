@@ -1,35 +1,34 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import morgan from 'morgan';
-import cors from 'cors';
-import userRoutes from "./routes/user.js";
-import session from 'express-session';
-
-const port =  9090;
+const mongoose = require("mongoose");
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const app = express();
-mongoose.set('debug', true);
-mongoose.Promise = global.Promise;
-mongoose
-.connect("mongodb://127.0.0.1:27017/authentication")
-  .then(() => {
-    console.log(`Connected to authentication`);
-  })
-  .catch(err => {
-    console.log(err);
-  });
-  // Set up session middleware
-app.use(session({
-  secret: 'my-secret-key',
-  resave: false,
-  saveUninitialized: false
-}));
+const port =  9090;
+require("dotenv").config();
+
+//DB connection
+mongoose.connect(process.env.DATABASE, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+}).then(() => {
+  console.log("Database connected");  
+});
+ mongoose.connection.on("error", (err) => {
+  console.log(err);
+});
+//use parsing middlware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors());
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/user', userRoutes);
 
+const userRoutes =require("./routes/user")
+//use routes
+app.use("/api",userRoutes);
 
+//start server
 app.listen(port, () => {
-  console.log(`Server running at http:${port}/`);                                                       
+  console.log(`Server running on port ${port}`);
 });
