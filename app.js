@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const app = express();
 
@@ -24,7 +23,6 @@ mongoose.connection.on("error", (err) => {
 //use parsing middlware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(cors());
 
 const userRoutes = require("./routes/user");

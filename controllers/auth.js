@@ -1,58 +1,50 @@
 const User= require('../models/user.model')
-var jwt = require("jsonwebtoken")
-var expressJwt = require("express-jwt")
+const bcrypt = require('bcrypt')
+const saltRounds = 10
 
-exports.signup = (req, res) => {
-  const user = new User(req.body)
-  user.save((err, user) => {
-    if (err) {
-      return res.status(400).json(
-       { error: 'unable to add user'
-      })
-    }
-    return res.status(201).json({
-      message: "Successfully added user",
-      user
+exports.signup = async (req, res) => {
+  const  hashedPwd = await bcrypt.hash(req.body.password, saltRounds);
+  User.create({ 
+    login: req.body.login,
+    password: hashedPwd,	
+    longitude: req.body.longitude,
+    latitude : req.body.latitude
+   }).then(
+    result => {
+        res.status(201).json({
+            message: "User added successfully",
+            result: result
+
+        });
     })
-  })
-}
+.catch(err => {
+    res.status(500).send({ message: err.message });
+});
+};
 
-exports.signin = (req, res) => {
-  const { login, password } = req.body
-  User.findOne({ login }, (err, user) => {
-    if (err|| !user) {
-      return res.status(400).json(
-       { error: 'unable to find user email address'
-      })
-    }
-    // authenticate user
-    if (!user.authenticate(password)) {
-      return res.status(401).json(
-       { error: 'Email and password do not match'
-      })
-    }
-    // create token
-    const token = jwt.sign({_id:user._id}, process.env.SECRET)
-    //put token into cookie
-    res.cookie('token', token, {expire : new Date()+100})
-    //send response
-    const {_id, name, login,longitude,latitude} = user
+
+exports.signin = async (req, res) => {
+  const user = await User.findOne({ login: req.body.login })
+  if (user) {
+    const validPassword = await bcrypt.compare(req.body.password, user.password);
+    if (validPassword) {
+   const {_id, login,longitude,latitude} = user
     res.status(200).json({
-      token,
+      message: "Valid password",
       user: {
         _id,
-        name,
         login,
         longitude,
         latitude
       }
-    })  
-    
-  })
-}
-exports.signout =(req,res) => {
-  res.clearCookie('token')
-  return res.json({
-    message: 'Signout successful'   
-  })
-}
+    })
+    }
+  else {
+    res.status(400).json({ error: "Invalid Password" });
+  }
+  } else {
+  res.status(401).json({ error: "User does not exist" });
+  }
+  };
+      
+ 

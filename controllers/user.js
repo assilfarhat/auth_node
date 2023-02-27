@@ -1,11 +1,11 @@
 const User = require("../models/user.model");
 
-exports.getUserByEmail = (req, res) => {
+exports.getUserByName = (req, res) => {
     const { login } = req.body
     User.findOne({ login }, (err, user) => {
         if (err || !user) {
             res.status(500).json({ 
-                message: "'No account with that email address exists." });
+                message: "'No account with that name exists." });
         } else {
             const {_id, name, login,longitude,latitude} = user
             res.status(200).json({

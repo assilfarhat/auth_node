@@ -1,0 +1,19 @@
+const User= require('../models/user.model')
+
+// verify user name
+exports.verifyUsername = async (req,res,next)=>{
+   const user=  await User.findOne({ login: req.body.login })
+       if(user){
+                res.status(400).send({
+                
+                    message: "Failed! Username is already in use!",
+                    
+            })
+        }else{
+            next()
+        }
+        
+    
+
+}
+
